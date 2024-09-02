@@ -1,0 +1,42 @@
+# Configuration for Increment Service Application
+server:
+  port: 3333
+spring:
+  application:
+    name: increment-service
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: https://dev-sbl1fbl5jtmx30jo.us.auth0.com/
+
+  datasource:
+    url: jdbc:postgresql://postgres:5432/increment_db
+    username: user
+    password: pwd
+    driver-class-name: org.postgresql.Driver
+
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    locations: classpath:flyway
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+
+logging:
+  file:
+    name: /path/to/your/logfile.log
+  level:
+    root: INFO
+    org.springframework.web: DEBUG
+
+

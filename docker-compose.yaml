@@ -1,0 +1,82 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:latest
+    container_name: postgres
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: pwd
+      POSTGRES_DB: increment_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - backend
+
+  increment-redis:
+    image: redis:latest
+    container_name: increment-redis
+    ports:
+      - "6379:6379"
+    networks:
+      - backend
+    volumes:
+      - redis_data:/increment
+    command: >
+      sh -c "redis-server --port 6379 --protected-mode no &
+             sleep 1 &&
+             redis-cli -p 6379 CONFIG SET notify-keyspace-events Ex &&
+             tail -f /dev/null"
+
+  rate-limiting-redis:
+    image: redis:latest
+    container_name: rate-limiting-redis
+    ports:
+      - "6380:6379"
+    networks:
+      - backend
+    volumes:
+      - redis_data:/rate-limiting
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./target/classes/prometheus.yaml:/etc/prometheus/prometheus.yml
+
+  increment_app:
+    image: openjdk:21-jdk-slim
+    container_name: increment_app
+#    environment:
+#      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/increment_db
+#      SPRING_DATASOURCE_USERNAME: user
+#      SPRING_DATASOURCE_PASSWORD: pwd
+#      SPRING_REDIS_HOST: redis
+#      SPRING_REDIS_PORT: 6379
+    depends_on:
+      - postgres
+      - increment-redis
+      - rate-limiting-redis
+      - prometheus
+    networks:
+      - backend
+#    links:
+#      - redis
+    ports:
+      - "3333:3333"
+    volumes:
+      - ./target:/app
+    working_dir: /app
+    command: ["sh", "-c", "java -jar increment-service-0.0.1-SNAPSHOT.jar"]
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  backend:
+    driver: bridge
