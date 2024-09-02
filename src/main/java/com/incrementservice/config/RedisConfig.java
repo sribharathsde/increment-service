@@ -43,7 +43,6 @@ public class RedisConfig {
     @Bean
     public RedisConnectionFactory redisConnectionFactory() {
         return new LettuceConnectionFactory(new RedisStandaloneConfiguration("increment-redis", 6379));
-//        return new LettuceConnectionFactory(new RedisStandaloneConfiguration("localhost", 6379));
     }
 
     /**

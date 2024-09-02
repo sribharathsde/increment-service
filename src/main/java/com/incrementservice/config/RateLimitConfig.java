@@ -26,11 +26,6 @@ public class RateLimitConfig {
                                           .withSsl(false)
                                           .build());
 
-//        return RedisClient.create(RedisURI.builder()
-//                                          .withHost("localhost")
-//                                          .withPort(6380)
-//                                          .withSsl(false)
-//                                          .build());
     }
 
     @Bean
