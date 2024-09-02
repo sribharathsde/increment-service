@@ -24,7 +24,7 @@ This increment Service is developed using Java 21, Spring Boot 3, Redis, Postgre
 
 ### 1. Clone the Repository
 ```bash
-
+git clone https://github.com/sribharathsde/increment-service.git
 ```
 
 ### 2. Build the Application
