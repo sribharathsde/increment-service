@@ -50,18 +50,18 @@ public class IncrementService {
      * @param expiredKey the expired key
      */
     public void processExpiredKey(String expiredKey) {
-        log.info("Processing expired Redis key: {}", expiredKey);
-
         String shadowKey = createShadowKey(expiredKey);
         Integer value = redisTemplate.opsForValue().get(shadowKey);
-
-        if (value != null) {
-            log.info("Found value in shadow key: {}, value = {}", shadowKey, value);
-            updateOrInsertRecord(expiredKey, value);
-            redisTemplate.delete(shadowKey);
-            log.info("Deleted shadow key: {}", shadowKey);
-        } else {
-            log.warn("No value found for shadow key: {}", shadowKey);
+        Boolean isLocked = redisTemplate.opsForValue().setIfAbsent(shadowKey, value, Duration.ofSeconds(10));
+        if(Boolean.TRUE.equals(isLocked)) {
+            try {
+                log.info("Found value in shadow key: {}, value = {}", shadowKey, value);
+                updateOrInsertRecord(expiredKey, value);
+                redisTemplate.delete(shadowKey);
+                log.info("Deleted shadow key: {}", shadowKey);
+            } finally {
+                redisTemplate.delete(shadowKey); // Release the lock after processing
+            }
         }
     }
 
@@ -83,7 +83,7 @@ public class IncrementService {
      * @param expiredKey the expired Redis key
      * @param value the value to add to the database
      */
-    private void updateOrInsertRecord(String expiredKey, Integer value) {
+    void updateOrInsertRecord(String expiredKey, Integer value) {
         log.info("Updating or inserting record for key: {}, value = {}", expiredKey, value);
 
         Optional<SumEntity> existingRecordOpt = sumRepository.findByKey(expiredKey);
