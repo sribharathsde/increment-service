@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
+ * This class serves as the entry point of the application.
+ * It handles incoming requests and invokes service methods to increment the value associated with a specified key.
  * Handles API requests for incrementing values in Redis.
  */
 @RestController
@@ -26,7 +28,7 @@ public class IncrementController {
     private final IncrementService service;
 
     /**
-     * Increments a value in Redis.
+     * Increments a value in Redis and returns accepted status.
      *
      * @param request the request body containing the key and value
      * @return HTTP status ACCEPTED

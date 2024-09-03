@@ -11,6 +11,7 @@ import io.lettuce.core.api.StatefulRedisConnection;
 import io.lettuce.core.codec.ByteArrayCodec;
 import io.lettuce.core.codec.RedisCodec;
 import io.lettuce.core.codec.StringCodec;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -19,9 +20,16 @@ import java.util.function.Supplier;
 
 @Configuration
 public class RateLimitConfig {
+    @Value("${increment-config.rate-limit-redis-host}")
+    private String rateLimitRedisHost;
+    @Value("${increment-config.rate-limit.periods}")
+    private Long rateLimitPeriods;
+    @Value("${increment-config.rate-limit.requests}")
+    private Long rateLimitRequests;
+
     private RedisClient redisClient() {
         return RedisClient.create(RedisURI.builder()
-                                          .withHost("rate-limiting-redis")
+                                          .withHost(rateLimitRedisHost)
                                           .withPort(6379)
                                           .withSsl(false)
                                           .build());
@@ -36,14 +44,14 @@ public class RateLimitConfig {
 
         return LettuceBasedProxyManager.builderFor(redisConnection)
                 .withExpirationStrategy(
-                        ExpirationAfterWriteStrategy.basedOnTimeForRefillingBucketUpToMax(Duration.ofMinutes(1L)))
+                        ExpirationAfterWriteStrategy.basedOnTimeForRefillingBucketUpToMax(Duration.ofMinutes(rateLimitPeriods)))
                 .build();
     }
 
     @Bean
     public Supplier<BucketConfiguration> bucketConfiguration() {
         return () -> BucketConfiguration.builder()
-                .addLimit(Bandwidth.simple(5l, Duration.ofMinutes(1L)))
+                .addLimit(Bandwidth.simple(rateLimitRequests, Duration.ofMinutes(rateLimitPeriods)))
                 .build();
     }
 }

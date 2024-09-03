@@ -1,6 +1,7 @@
 package com.incrementservice.config;
 
 import com.incrementservice.listener.RedisKeyExpirationListener;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
@@ -19,6 +20,8 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 @Configuration
 public class RedisConfig {
 
+    @Value("${increment-config.increment-redis-host}")
+    private String incrementRedisHost;
     /**
      * Configures the RedisTemplate.
      *
@@ -42,7 +45,7 @@ public class RedisConfig {
      */
     @Bean
     public RedisConnectionFactory redisConnectionFactory() {
-        return new LettuceConnectionFactory(new RedisStandaloneConfiguration("increment-redis", 6379));
+        return new LettuceConnectionFactory(new RedisStandaloneConfiguration(incrementRedisHost, 6379));
     }
 
     /**
