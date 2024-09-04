@@ -10,7 +10,7 @@ This increment Service is developed using Java 21, Spring Boot 3, Redis, Postgre
 - Increases the value by keeping it in memory (Redis) for 10 seconds, then pushes the sum to PostgreSQL.
 - Redis key expiration listener to handle expired keys.
 - Logging of incoming requests.
-- Rate limiting implemented using Bucket4j.
+- Rate limiting implemented using Bucket4j. By default application is configured to handle 20 request per minute. You can configure rate-limit.periods & rate-limit.requests in application.yaml file.
 - Secured using OAuth2 protocol, integrated with Auth0 for authentication.
 - Custom metrics exposed via Prometheus to expose application metrics.
 
@@ -42,7 +42,7 @@ docker-compose up --build
 ### 4. Accessing the Application
 You can access the application using the following endpoints:
 ```bash
-Generate the bearer token: curl --location 'https://dev-xokjpwctwfjktg8f.us.auth0.com/oauth/token' --header 'content-type: application/json' --header 'Cookie: did=s%3Av0%3A97b38b1d-c5b9-40df-974e-64a0163f1b37.VVqQihnwVatNZR3OKh%2BTiFF5sFJsITHfwysIhNPz2qQ; did_compat=s%3Av0%3A97b38b1d-c5b9-40df-974e-64a0163f1b37.VVqQihnwVatNZR3OKh%2BTiFF5sFJsITHfwysIhNPz2qQ' --data '{"client_id": "myMGEtGdR8c8PVpaHZNTIVpusQlCdJjp","client_secret": "DySz2DTM8O_XZ5CXvoq1zM2c8V1m_l10cbHk_78Ml0wndSxZu_RYKakWo6lddM8m","audience": "http://increment.api","grant_type": "client_credentials"}'
+Generate the bearer token: curl --location 'https://dev-sbl1fbl5jtmx30jo.us.auth0.com/oauth/token' --header 'content-type: application/json' --header 'Cookie: did=s%3Av0%3Afaa77c36-c5e4-4e02-8aa9-995c88398c35.CGkMvXG0%2BhZYxGX%2BSmdDzsHS41caaB2xjc34SGznPS8; did_compat=s%3Av0%3Afaa77c36-c5e4-4e02-8aa9-995c88398c35.CGkMvXG0%2BhZYxGX%2BSmdDzsHS41caaB2xjc34SGznPS8' --data '{"client_id":"cObOzm8XGfB0NEhPbFhfHYg8O90jRf09","client_secret":"ezqXoXMmz1RCARtiFIETQHfWn3cET5DOtV4ZyzxyvrHho9IbE-B8eibxyJO5eg3V","audience":"http://increment.api","grant_type":"client_credentials"}'
 ```
 ```bash
 Invoke increment endpoint with token: curl --location 'localhost:3333/api/increment' --header 'Content-Type: application/json' --header 'Authorization: Bearer {token}' --data '{"key":"test","value":100}' 
@@ -78,7 +78,16 @@ To visualize the metrics, you can use the following Prometheus queries and creat
  - Track the rate of error responses: sum by (status) (http_server_requests_seconds_count{status=~"4..|5..", uri!~"/actuator.*|.*UNKNOWN.*"})
 ```
 
-### 7. Stop the Application
+
+### 7. Steps to login to Auth0
+Login to autho portal using provided url and credential.
+```bash
+    Url: https://auth0.com
+    Username: Please let me know which email address should I send the invite to. This is to view the setup on Auth0. Please note that logging into Auth0 is not needed to start the applicaiton because it is already preconfigured to run.
+    
+ ```
+
+### 8. Stop the Application
 ```bash
 docker-compose down
 ...

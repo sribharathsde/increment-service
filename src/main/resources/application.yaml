@@ -37,7 +37,7 @@ increment-config:
   rate-limit-redis-host: rate-limiting-redis
   rate-limit:
     periods: 60
-    requests: 5
+    requests: 20
 
 
 logging:
